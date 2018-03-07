@@ -5,6 +5,7 @@ import os
 import codecs
 import sys
 import signal #Fenstergroessenaenderung
+import csv
 
 if sys.version_info <(3, 4):
 	safe_input = raw_input
@@ -13,12 +14,10 @@ elif sys.version_info >=(3, 4):
 
 #CSV-Update
 #Input DB
-dbname = str("mitglieder_db.csv")
-dblines = codecs.open(dbname, 'r', encoding='utf-8').readlines()
+csvreader = csv.reader(file("mitglieder_db.csv"))
 
 #Output DB
-outputDb = str("auto_mitglieder_db.csv")
-outFile = codecs.open(outputDb, 'w+' , encoding='utf-8')
+csvwriter = csv.writer(file("some.csv", "w"))
 
 #LaTex-Datei erstellen
 #Input
@@ -34,12 +33,25 @@ class Farben(object):
 
 	HEVORHEBEN = '\033[4m'
 	ROT ='\033[31m'
+	RESET = '\033[0m'
+
+def colorize(color, message):
+    """
+    Adds ANSI colors to the message
+    :type color: str
+    :type message: str
+    :param color: Colors to add to the message
+    :param message: Message which should be displayed colored
+    :return: the colored message
+    """
+    return "%s%s%s" % (color, message, Farben.RESET)
+
 
 def float_input(promt, default, decimals=0):
 	input_text =""
 	while True:
 		try:
-			input_text =str_input(safe_input("{promt} [{default}]".
+			input_text =str(safe_input("{promt} [{default}]".
 				format(promt=promt,default=default)))
 		 	if(len(input_text)) == 0:
 				return default
@@ -47,7 +59,7 @@ def float_input(promt, default, decimals=0):
 			else:
 				return float(input_text)
 		except ValueError:
-			print(colorize(Farbe.ROT, "EUROBETRAG EINGEBEN. Versuche es nochmal"))
+			print(colorize(Farben.ROT, "EUROBETRAG EINGEBEN. Versuche es nochmal"))
 
 
 
@@ -64,7 +76,6 @@ for dbline in dblines:
 
 	else:
 		outFile.write(dbline)
-
 
 #TODO: Ausgabe schreiben
 

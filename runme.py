@@ -14,10 +14,12 @@ elif sys.version_info >=(3, 4):
 
 #CSV-Update
 #Input DB
-csvreader = csv.reader(file("mitglieder_db.csv"))
+readDB =open("mitglieder_db.csv")
+csvreader = csv.reader(readDB)
 
 #Output DB
-csvwriter = csv.writer(file("some.csv", "w"))
+writeDB = open(file("auto_mitglieder_db.csv")
+csvwriter = csv.writer(writeDB)
 
 #LaTex-Datei erstellen
 #Input
@@ -30,10 +32,12 @@ lines = codecs.open(filename_Output, 'w+', encoding='utf-8')
 
 #Farbdefinition
 class Farben(object):
-
+	GruenBg ='\033[42m'
+	Gruen = '\033[32m'
 	HEVORHEBEN = '\033[4m'
 	ROT ='\033[31m'
 	RESET = '\033[0m'
+
 
 def colorize(color, message):
     """
@@ -58,34 +62,79 @@ def float_input(promt, default, decimals=0):
 				#TODO: elif Float aber zu viel Nachkomma
 			else:
 				return float(input_text)
-		except ValueError:
+                except ValueError:
 			print(colorize(Farben.ROT, "EUROBETRAG EINGEBEN. Versuche es nochmal"))
 
+def bestaetigung_input(text):
+    input_text=""
+    while True:
+        print(text)
+        input_text = str(safe_input())
+        if input_text.strip().capitalize() =='Y':
+            return True
+        elif input_text.strip().capitalize() == 'N':
+            return False
+        else:
+            print('Eingabe nicht erkannt')
 
 
 #####Programm start
-linecounter =0
-for dbline in dblines:
-	linecounter += 1
-	if linecounter>1:
-		print(dbline[0:dbline.index(",")].strip())
-		print(dbline[0:dbline.index(",")].strip())
-		einzahlung = float_input("Einzahlung:",0.0,2)
-		print("%d" %einzahlung)
+for rowcounter, row in enumerate(csvreader):
 
-
+	if rowcounter ==0:
+		rowHead = row
+		print(rowHead)
+		csvwriter.writerow(rowHead)
 	else:
-		outFile.write(dbline)
+		while True:
+			rowNew = []
+			lineNew=''
+			for columnCounter in range(0, len(row)):
+				if rowHead[columnCounter].strip() == 'Name':
+					rowNew.append(row[columnCounter])
+					print(colorize(Farben.Gruen, (rowNew[columnCounter])))
+					lineNew += colorize(Farben.GruenBg ,rowHead[columnCounter].strip()+ ': '+ rowNew[columnCounter] )+ ' \n'
+
+				elif rowHead[columnCounter].strip() == 'Eingezahlt':
+					einzahlung = float_input("Einzahlung:",0.0,2)
+					rowNew.append(str(float(row[columnCounter])+einzahlung))
+					lineNew += rowHead[columnCounter].strip()+ ': '+ str(float(rowNew[columnCounter])-float(row[columnCounter])) + ' \n'
+
+				elif rowHead[columnCounter].strip() == '#50ct':
+					kosten_50ct = float_input("#50ct",0.0,0)
+					rowNew.append(str(float(row[columnCounter])+kosten_50ct))
+					lineNew += rowHead[columnCounter].strip()+ ': '+ str(float(rowNew[columnCounter])-float(row[columnCounter])) + ' \n'
+
+				elif rowHead[columnCounter].strip() == '#70ct' :
+					kosten_70ct = float_input("#70ct",0.0,0)
+					rowNew.append(str(float(row[columnCounter])+kosten_70ct))
+					lineNew += rowHead[columnCounter].strip()+ ': '+ str(float(rowNew[columnCounter])-float(row[columnCounter])) + ' \n'
+
+				elif rowHead[columnCounter].strip() == '#100ct' :
+					kosten_100ct = float_input("#100ct",0.0,0)
+					rowNew.append(str(float(row[columnCounter])+kosten_100ct))
+					lineNew += rowHead[columnCounter].strip()+ ': '+ str(float(rowNew[columnCounter])-float(row[columnCounter])) + ' \n'
+
+			#print(lineNew)
+			if bestaetigung_input('Ist die Eingabe richtig? [y/n]'):
+				break
+
+
+		csvwriter.writerow(rowNew)
+
+#TODO: Nutzer anlegen
+	writeDB.close()
+	readDB.close()
+	#
 
 #TODO: Ausgabe schreiben
 
 
 
 
-#TODO: Nutzer anlegen
 
 
-print("EoF")
+print("Geschafft")
 
 
 

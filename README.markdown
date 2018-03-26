@@ -1,12 +1,11 @@
 # Repository für eine Getränkeliste
 
-[![Code Health](https://landscape.io/github/fau-fablab/getraenkeliste/master/landscape.svg?style=flat)](https://landscape.io/github/fau-fablab/getraenkeliste/master)
 
-## Anleitung
+## Anleitung (falls fertig)
+
 1. das ```runme.py``` ausführen
-2. diff überprüfen
-3. PDF drucken und umhängen
-4. Spaß haben
+2. PDF drucken und umhängen
+3. Spaß haben
 
 ## Lizenz
 

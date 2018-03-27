@@ -6,7 +6,7 @@ import codecs
 import sys
 import signal #Fenstergroessenaenderung
 import csv
-import collections
+import shutil
 
 if sys.version_info <(3, 4):
         safe_input = raw_input
@@ -116,15 +116,43 @@ def zeilen_abfrage(name):
             return {'Name' : v_name, 'Eingezahlt' : str(v_eingezahlt),'#50ct' : str(v_50ct), '#70ct' : str(v_70ct), '#100ct' : str(v_100ct)}
 
 
+def DBEinfuegen(dbname):
+    insertstring =''
+   #csv.open
+    readDB = open(str(dbname))
+    csvreader = csv.DictReader(readDB)
+    gesges =0
+    ges50 =0
+    ges70 =0
+    ges100 =0
 
+    for row in csvreader:
+        insertstring = str(row['Name'])+' &'
+        ges = (float(row['Eingezahlt'])-0.5*float(row['#50ct'])-0.7*float(row['#70ct'])-1.0*float(row['#100ct']))
+        gesges += ges
+        if(ges >= 0.0):
+            insertstring += str(ges)+' &'
+        else:
+            insertstring += str(ges)+' &' #TODO:colour <RED
+        ges50 += float(row['#50ct'])
+        ges70 += float(row['#70ct'])
+        ges50 += float(row['#100ct'])
 
+        insertstring += str(row['#50ct'])+' &'
+        insertstring += str(row['#70ct'])+' &'
+        insertstring += str(row['#100ct'])+' \\\hline'
 
+    insertstring += str(ges50)+' &'
+    insertstring += str(ges70)+' &'
+    insertstring += str(ges100)+' \\\hline'
+    return insertstring
 
 #####Programm start
 
 #CSV-Update
 #Input DB
-readDB = open('mitglieder_db.csv')
+DBFile ='mitglieder_db.csv'
+readDB = open(DBFile)
 csvreader = csv.DictReader(readDB)
 
 #fieldnames = ['Name','Eingezahlt','#50ct','#70ct','#100ct']
@@ -133,8 +161,32 @@ fieldnames = csvreader.fieldnames
 
 
 #Output DB
-writeDB =  open("auto_mitglieder_db.csv",'a')
+DBFileTmp ="auto_mitglieder_db.csv"
+writeDB =  open(DBFileTmp,'w')
 csvwriter = csv.DictWriter(writeDB,fieldnames=fieldnames)
+
+#Eintargungen in die DB
+csvwriter.writeheader()
+## Alte Benutzer
+for row in csvreader:
+    #Schreiben der CSV-Zeile
+    csvwriter.writerow(zeilen_abfrage(row['Name']))
+
+
+## Nutzer anlegen
+if bestaetigung_input('Soll ein neuer Benutzer angelegt werden? [y/n]'):
+
+    csvwriter.writerow(zeilen_abfrage(''))
+#Dateien schließen
+writeDB.close()
+readDB.close()
+#Dateien rueckschreiben
+os.remove(DBFile)
+shutil.copy(DBFileTmp, DBFile)
+os.remove(DBFileTmp)
+
+
+# Ausgabe schreiben
 
 #LaTex-Datei erstellen
 #Input
@@ -143,25 +195,13 @@ lines = codecs.open(filename_Input, 'r', encoding='utf-8').readlines()
 
 #Output
 filename_Output = str("getraenkeliste.tex")
-lines = codecs.open(filename_Output, 'w+', encoding='utf-8')
-csvwriter.writeheader()
-for row in csvreader:
-    #Schreiben der CSV-Zeile
-    csvwriter.writerow(zeilen_abfrage(row['Name']))
+writer = codecs.open(filename_Output, 'w+', encoding='utf-8')
 
-#TODO: Nutzer anlegen
-if bestaetigung_input('Soll ein neuer Benutzer angelegt werden? [y/n]'):
-
-    csvwriter.writerow(zeilen_abfrage(''))
-
-writeDB.close()
-readDB.close()
-
-
-#TODO: Ausgabe schreiben
-
-
-
+for line in lines:
+    if(line=='%Hier kommen die Daten rein\n'):
+        DBeinfuegen(DBFile)
+    else:
+        writer.write(line)
 
 
 

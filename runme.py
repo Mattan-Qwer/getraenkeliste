@@ -121,30 +121,45 @@ def DBEinfuegen(dbname):
    #csv.open
     readDB = open(str(dbname))
     csvreader = csv.DictReader(readDB)
-    gesges =0
-    ges50 =0
-    ges70 =0
-    ges100 =0
+    gesges = 0
+    ges50 = 0
+    ges70 = 0
+    ges100 = 0
+    gesscore = 0
 
     for row in csvreader:
-        insertstring = str(row['Name'])+' &'
         ges = (float(row['Eingezahlt'])-0.5*float(row['#50ct'])-0.7*float(row['#70ct'])-1.0*float(row['#100ct']))
-        gesges += ges
-        if(ges >= 0.0):
-            insertstring += str(ges)+' &'
-        else:
-            insertstring += str(ges)+' &' #TODO:colour <RED
+
+        score = float(row['#50ct'])
+        score += float(row['#70ct'])
+        score += float(row['#100ct'])
+
         ges50 += float(row['#50ct'])
         ges70 += float(row['#70ct'])
         ges50 += float(row['#100ct'])
+        gesscore += score
+        gesges += ges
 
-        insertstring += str(row['#50ct'])+' &'
-        insertstring += str(row['#70ct'])+' &'
-        insertstring += str(row['#100ct'])+' \\\hline'
+        insertstring +=' @'+ row['Name'] + ' & '
+        print(row['Name'])
+        if(ges >= 0.0):
+            insertstring += str(ges)+' & '
+        else:
+            insertstring += str(ges)+' & ' #TODO:colour <RED
 
-    insertstring += str(ges50)+' &'
-    insertstring += str(ges70)+' &'
-    insertstring += str(ges100)+' \\\hline'
+
+        insertstring += str(row['#50ct'])+' & '
+        insertstring += str(row['#70ct'])+' & '
+        insertstring += str(row['#100ct'])+'&'
+        insertstring += str(score) + '\\\\ \\hline \n'
+
+    insertstring += ' & '
+    insertstring += str(gesges)+' & '
+    insertstring += str(ges50)+' & '
+    insertstring += str(ges70)+' & '
+    insertstring += str(ges100)+' & '
+    insertstring += str(gesscore) + '\\\\ \\hline'
+    print(insertstring)
     return insertstring
 
 #####Programm start
@@ -198,8 +213,9 @@ filename_Output = str("getraenkeliste.tex")
 writer = codecs.open(filename_Output, 'w+', encoding='utf-8')
 
 for line in lines:
+
     if(line=='%Hier kommen die Daten rein\n'):
-        DBeinfuegen(DBFile)
+        writer.write(DBEinfuegen(DBFile))
     else:
         writer.write(line)
 

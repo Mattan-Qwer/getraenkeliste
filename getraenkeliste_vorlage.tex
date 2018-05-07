@@ -33,24 +33,26 @@
 \usepackage{longtable}
 % Seitenränder
 \usepackage[left=2cm,right=2cm,top=1cm,bottom=1cm]{geometry}
+\usepackage{booktabs}
 % Keine Seitenzahlen usw.
 \pagestyle{empty}
 
 \begin{document}
 	
 	% Formatierung
-	\onehalfspacing
+	%\onehalfspacing
 	\begin{center}
 		
 		% Um Logo in Zeile vertikal zu zentrieren
-		\raisebox{-.05\height}{\includegraphics[width=0.15\textwidth]{logo}} \Large \textbf{Getränkestrichliste} - \textbf{Stand: \today}
 		
-		% Formatierung - normale Schrift
+		%\raisebox{-.05\height}{\includegraphics[width=0.15\textwidth]{logo}} 
+		\Large \textbf{Getränkestrichliste} - \textbf{Stand: \today}
+				% Formatierung - normale Schrift
 		\large
 		%\normalsize
 		
 		% Optionen
-		\renewcommand\STprintnum[1]{\FPifneg{#1}\color{red}\fi\numprint{#1}}
+		%\renewcommand\STprintnum[1]{\FPifneg{#1}\color{red}\fi\numprint{#1}}
 		\npdecimalsign{,}
 		\npthousandsep{.}
 		
@@ -60,14 +62,14 @@
 		
 		% Getränkeliste
 		\rowcolors{1}{}{lightgray}
-		\begin{spreadtab}{{longtable}{|l|r|p{3.7cm}|p{3.7cm}|p{2.2cm}|c|}}
-			\hline
-			@\textbf{Name} 			&@\textbf{Guthaben}  																&@\textbf{\EUR{0,50}}	&@\textbf{\EUR{0,70}} 	&@\textbf{\EUR{1,00}} 	&@\textbf{Score} 			\\
+		\begin{longtable}{|l|r|p{3.7cm}|p{3.7cm}|p{2.2cm}|c|}
+			\hline 
+            \textbf{Name}  & \textbf{Guthaben} & \textbf{\EUR{0,50}}	& \textbf{\EUR{0,70}} 	& \textbf{\EUR{1,00}} 	& \textbf{Score} 			\\
 			\hline
 %Hier kommen die Daten rein
 			%
 			\hline
-		\end{spreadtab}
+		\end{longtable}
 		
 		\vspace{0.5cm}
 		
@@ -77,15 +79,15 @@
 		\begin{tabular}{|p{15cm}|r|}
 			\hline
 			\textbf{Was?} & \textbf{Preis} \\ \hline
-			Exotic, Loschi Cola, Orangenlimonade, Spezi, Wasser, Zitronenlimo & \EUR{0,50} \\ \hline
-			Apfelschorle, Traubenschorle, Apfel-Kirsch, ACE, Multi Vitamin, Mate, Mate ICE-T, Mate Cola, Löschzwerg & \EUR{0,70} \\ \hline
-			Holler, Cassis, Cherry (alles Rhön Sprudel), Bier, Radler & \EUR{1,00} \\ \hline
+			Alles was \EUR{0,50} kostet & \EUR{0,50} \\ \hline
+			Alles was \EUR{0,70} kostet & \EUR{0,70} \\ \hline
+			Alles was \EUR{1,00} kostet & \EUR{1,00} \\ \hline
 		\end{tabular}
 		
 		\vfill
 		
 		% Notizen
-		\Large{\textcolor{red}{Positiv-Liste nur für Aktive!}} Zum Aufladen, bezahlt in die \textbf{rote Kasse} und tragt es in der Spalte "'\textbf{Guthaben}"' ein. Bei Fragen bitte an \texttt{christopher.sauer@fau.de} wenden.
+		\Large{\textcolor{red}{Positiv-Liste nur für Aktive!}} Zum Aufladen, bezahlt in die \textbf{rote Kasse} und tragt es in der Spalte \glqq \textbf{Guthaben} \grqq ein. Bei Fragen bitte an \texttt{getraenke@fablab.fau.de} wenden.
 		
 		\vfill
 		
@@ -93,12 +95,9 @@
 		\large
 		
 		\rowcolors{1}{}{lightgray}
-		\begin{spreadtab}{{tabular}{|p{2.4cm}|p{1.9cm}|p{3.7cm}|p{3.7cm}|p{2.2cm}|c|}}
+		\begin{tabular}{|p{2.4cm}|p{1.9cm}|p{3.7cm}|p{3.7cm}|p{2.2cm}|c|}
 			\hline
-			@\textbf{Name} 		&@\textbf{Guthaben}  									&@\textbf{\EUR{0,50}}	&@\textbf{\EUR{0,70}} 	&@\textbf{\EUR{1,00}} 	&@\textbf{Score} 			\\
-			\hline
-			%
-			& & & & & \\
+			\textbf{Name} 		& \textbf{Guthaben}  									& \textbf{\EUR{0,50}}	& \textbf{\EUR{0,70}} 	& \textbf{\EUR{1,00}} 	& \textbf{Score} 			\\
 			\hline
 			%
 			& & & & & \\
@@ -106,7 +105,10 @@
 			%
 			& & & & & \\
 			\hline
-		\end{spreadtab}
+			%
+			& & & & & \\
+			\hline
+		\end{tabular}
 	\end{center}
 	
 \end{document}

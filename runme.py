@@ -33,11 +33,11 @@ def more_decimals_than(number, allowed_decimals_cnt):
 
 #Farbdefinition
 class Farben(object):
-	GruenBg ='\033[42m'
-	Gruen = '\033[32m'
-	HEVORHEBEN = '\033[4m'
-	ROT ='\033[31m'
-	RESET = '\033[0m'
+        GruenBg ='\033[42m'
+        Gruen = '\033[32m'
+        HEVORHEBEN = '\033[4m'
+        ROT ='\033[31m'
+        RESET = '\033[0m'
 
 
 def colorize(color, message):
@@ -84,7 +84,7 @@ def bestaetigung_input(text):
             print('Eingabe nicht erkannt')
 
 
-def zeilen_abfrage(name):
+def zeilen_abfrage(name,row):
     while True:
         # row['Name']
         if len(name) ==0:
@@ -94,22 +94,22 @@ def zeilen_abfrage(name):
             v_name = str(name)
         print(v_name)
         # row[ 'Eingezahlt']
-        v_eingezahlt = float(row['Eingezahlt']) + float_input("Einzahlung:",0.0,2)
+        v_eingezahlt = float((row['Eingezahlt']).strip()) + float_input("Einzahlung:",0.0,2)
         print( str(v_eingezahlt -float(row['Eingezahlt'])))
 
         # row['#50ct']
         kosten_50ct = float_input("#50ct",0.0,0)
         print('#50ct: '+str(kosten_50ct))
-        v_50ct = float(row['#50ct']) + kosten_50ct
+        v_50ct = float((row['#50ct']).strip()) + kosten_50ct
         #row[ '#70ct']
         kosten_70ct = float_input("#70ct",0.0,0)
         print('#70ct: '+str(kosten_70ct))
-        v_70ct = float(row['#70ct'])+kosten_70ct
+        v_70ct = float((row['#70ct']).strip())+kosten_70ct
 
         #row[ '#100ct']
         kosten_100ct = float_input("#100ct",0.0,0)
         print('#100ct: '+str(kosten_100ct))
-        v_100ct = float(row['#100ct'])+kosten_100ct
+        v_100ct = float((row['#100ct']).strip())+kosten_100ct
 
 
         if bestaetigung_input('Ist die Eingabe richtig? [y/n]'):
@@ -130,78 +130,88 @@ def DBEinfuegen(dbname):
     for row in csvreader:
         ges = (float(row['Eingezahlt'])-0.5*float(row['#50ct'])-0.7*float(row['#70ct'])-1.0*float(row['#100ct']))
 
-        score = float(row['#50ct'])
-        score += float(row['#70ct'])
-        score += float(row['#100ct'])
+        score = int(round(float(row['#50ct'])))
+        score += int(round(float(row['#70ct'])))
+        score += int(round(float(row['#100ct'])))
 
-        ges50 += float(row['#50ct'])
-        ges70 += float(row['#70ct'])
-        ges50 += float(row['#100ct'])
+        ges50 += int(float(row['#50ct']))
+        ges70 += int(float(row['#70ct']))
+        ges100 += int(float(row['#100ct']))
         gesscore += score
         gesges += ges
 
-        insertstring +=' @'+ row['Name'] + ' & '
+        insertstring += row['Name'] + ' & '
         print(row['Name'])
         if(ges >= 0.0):
-            insertstring += str(ges)+' & '
+            insertstring +='\EUR{' +'{0:.2f}'.format(round(ges,2)) +'} & '
         else:
-            insertstring += str(ges)+' & ' #TODO:colour <RED
+            insertstring += '\\textcolor{red}{\EUR{' + '{0:.2f}'.format(round(ges,2)) +'}} & ' #TODO:colour <RED
 
 
-        insertstring += str(row['#50ct'])+' & '
-        insertstring += str(row['#70ct'])+' & '
-        insertstring += str(row['#100ct'])+'&'
-        insertstring += str(score) + '\\\\ \\hline \n'
+        insertstring +='\\textcolor{gray}{' + str(int(float(row['#50ct'])))+'} & '
+        insertstring +='\\textcolor{gray}{' + str(int(float(row['#70ct'])))+'} & '
+        insertstring +='\\textcolor{gray}{' + str(int(float(row['#100ct'])))+'} & '
+        insertstring += str(int(float(score))) + '\\\\ \\hline \n'
 
     insertstring += ' & '
-    insertstring += str(gesges)+' & '
-    insertstring += str(ges50)+' & '
-    insertstring += str(ges70)+' & '
-    insertstring += str(ges100)+' & '
-    insertstring += str(gesscore) + '\\\\ \\hline'
+    insertstring += '{0:.2f}'.format(round(gesges,2))+' & '
+    insertstring += str(int(ges50))+' & '
+    insertstring += str(int(ges70))+' & '
+    insertstring += str(int(ges100))+' & '
+    insertstring += str(int(gesscore)) + '\\\\ \\hline'
     print(insertstring)
     return insertstring
 
+def DbBearbeitung(DBFile):
+
+    #CSV-Update
+    #Input DB
+    readDB = open(DBFile)
+    csvreader = csv.DictReader(readDB)
+
+    #fieldnames = ['Name','Eingezahlt','#50ct','#70ct','#100ct']
+    fieldnames = csvreader.fieldnames
+    #print(fieldnames)
+
+
+    #Output DB
+    DBFileTmp ="auto_mitglieder_db.csv"
+    writeDB =  open(DBFileTmp,'w')
+    csvwriter = csv.DictWriter(writeDB,fieldnames=fieldnames)
+
+
+
+    #Eintargungen in die DB
+    csvwriter.writeheader()
+    ## Alte Benutzer
+    for row in csvreader:
+        #Schreiben der CSV-Zeile
+        csvwriter.writerow(zeilen_abfrage(row['Name'],row))
+
+
+    ## Nutzer anlegen
+    if bestaetigung_input('Soll ein neuer Benutzer angelegt werden? [y/n]'):
+
+        csvwriter.writerow(zeilen_abfrage('',{'Name' : '', 'Eingezahlt' :'0.00','#50ct' : '0', '#70ct' :'0', '#100ct' :'0'}))
+    #Dateien schließen
+    writeDB.close()
+    readDB.close()
+    #Dateien rueckschreiben
+    os.remove(DBFile)
+    shutil.copy(DBFileTmp, DBFile)
+    os.remove(DBFileTmp)
+
 #####Programm start
 
-#CSV-Update
-#Input DB
+
+
 DBFile ='mitglieder_db.csv'
-readDB = open(DBFile)
-csvreader = csv.DictReader(readDB)
 
-#fieldnames = ['Name','Eingezahlt','#50ct','#70ct','#100ct']
-fieldnames = csvreader.fieldnames
-#print(fieldnames)
-
-
-#Output DB
-DBFileTmp ="auto_mitglieder_db.csv"
-writeDB =  open(DBFileTmp,'w')
-csvwriter = csv.DictWriter(writeDB,fieldnames=fieldnames)
-
-#Eintargungen in die DB
-csvwriter.writeheader()
-## Alte Benutzer
-for row in csvreader:
-    #Schreiben der CSV-Zeile
-    csvwriter.writerow(zeilen_abfrage(row['Name']))
-
-
-## Nutzer anlegen
-if bestaetigung_input('Soll ein neuer Benutzer angelegt werden? [y/n]'):
-
-    csvwriter.writerow(zeilen_abfrage(''))
-#Dateien schließen
-writeDB.close()
-readDB.close()
-#Dateien rueckschreiben
-os.remove(DBFile)
-shutil.copy(DBFileTmp, DBFile)
-os.remove(DBFileTmp)
-
+DbBearbeitung(DBFile)
 
 # Ausgabe schreiben
+
+
 
 #LaTex-Datei erstellen
 #Input
@@ -209,8 +219,10 @@ filename_Input = str("getraenkeliste_vorlage.tex")
 lines = codecs.open(filename_Input, 'r', encoding='utf-8').readlines()
 
 #Output
-filename_Output = str("getraenkeliste.tex")
+filename_Output = str("./getraenkeliste.tex")
 writer = codecs.open(filename_Output, 'w+', encoding='utf-8')
+
+file_Output_pdf=filename_Output.replace('.tex' ,'.pdf')
 
 for line in lines:
 
@@ -221,10 +233,13 @@ for line in lines:
 
 
 
-print("Geschafft")
+print('Latex make')
+if(os.system("pdflatex -no-shell-escape {file} \n".format(file=filename_Output))==0):
 
-
-
+    print("Geschafft")
+    print("Jetzt noch "+ file_Output_pdf + " ausdrucken")
+else:
+    print("Latex komplieren hat nicht funktiuniert. Bitte per Hand nochmal probieren")
 
 
 

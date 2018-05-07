@@ -4,7 +4,8 @@
 ## Anleitung
 
 1. das ```runme.py``` ausführen
-2. PDF drucken und umhängen
+2. pdflatex ausführen (läuft aus dem Script nicht durch)
+2.1. PDF drucken
 3. Spaß haben
 
 ## Lizenz

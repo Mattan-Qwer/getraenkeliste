@@ -1,7 +1,7 @@
 # Repository für eine Getränkeliste
 
 
-## Anleitung (falls fertig)
+## Anleitung
 
 1. das ```runme.py``` ausführen
 2. PDF drucken und umhängen
